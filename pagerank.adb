@@ -3,14 +3,19 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Float_Text_IO; use Ada.Float_Text_IO;
 with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 with Ada.Command_line; use Ada.Command_line;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Algebre;
 
 procedure pagerank is
 
 	Reseau : Ada.Text_IO.File_Type;
-	Nom_Reseau : String := "exemple_sujet.net";
+	Nom_Reseau : Unbounded_String := To_Unbounded_String("exemple_sujet.net");
 	alpha : float := 0.85;
 	Iteration : Integer := 150;
+	K : Integer := 1;
+	Mode : Character := 'C';
+	Arg : Unbounded_String;
+
 
 	-- On récupère le nombre N de pages du reseau
 	function Determiner_Taille(Nom_Reseau : String) return Integer is
@@ -23,7 +28,7 @@ procedure pagerank is
 		return(N);
 	end Determiner_Taille;
 
-	N : Integer := Determiner_Taille(Nom_Reseau);
+	N : Integer := Determiner_Taille(To_String(Nom_Reseau));
 	-- On utlise des matrices de taille N*N
 	package AlgebreN is new Algebre(N);
 	use AlgebreN;
@@ -91,7 +96,45 @@ procedure pagerank is
 
 begin
 
-	G := Matrice_Google_Naive(Nom_Reseau);
-	Calcul_PageRank(Poids, Iteration);
+	while K < Argument_Count loop
+		Arg := To_Unbounded_String(Argument(K));
+
+		if Arg = "-P" then
+			-- Mode Naif
+			Mode := 'N';
+			K := K + 1;
+
+		elsif Arg = "-I" then
+			-- Choix nbre itération
+			Iteration := Integer'Value(Argument(K+1));
+			K := K + 2;
+
+		elsif Arg = "-A" then
+			-- Choix alpha
+			alpha := Float'Value(Argument(K+1));
+			K := K + 2;
+
+		end if;
+	end loop;
+
+	Nom_Reseau := To_Unbounded_String(Argument(Argument_Count));
+	Put(Iteration,1);
+	Put(" Iterations");
+	New_Line;
+	Put(alpha,1);
+	Put(" = Alpha");
+	New_Line;
+
+	if Mode = 'N' then
+		Put_Line("Calcul Naif");
+		G := Matrice_Google_Naive(To_String(Nom_Reseau));
+		Calcul_PageRank(Poids, Iteration);
+
+	elsif Mode = 'C' then
+		Put_Line("Matrices creuses non implementees");
+
+	else
+		Put_Line("Erreur dans le choix du mode");
+	end if;
 
 end pagerank;
