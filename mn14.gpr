@@ -1,0 +1,3 @@
+project Mn14 is
+    for Main use ("Algebre.ads","Algebre.adb","pagerank.adb");
+end Mn14;
