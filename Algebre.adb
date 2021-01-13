@@ -94,7 +94,15 @@ package body Algebre is
 			M(Ligne_i)(j) := M(Ligne_i)(j) / Norme;
 		end loop;
 	end Normaliser_Ligne;
-
+	
+	-- Echange les valeurs de N1 et N2
+	procedure Echanger(N1 : in out Float, N2 : in out Float)
+		Memoire : Float;
+	begin 
+		Memoire := N1;
+		N1 := N2;
+		N2 := Memoire;
+	end Echanger;
 
 	-- Partitionner selon l'algorithme du tir rapide :
     function Partition(Poids : T_Vecteur; PageRank : T_Vecteur; debut : Integer; fin : Integer) return Integer is
@@ -107,15 +115,18 @@ package body Algebre is
         -- Permute tous les éléments de debut à fin, de sorte que :
         -- pour tout (k, k'), debut <=k < i_pivot <= k' < fin
         -- Poids(k) < pivot < Poids(k')
+	-- On parcourt l'ensemble du tableau pour determiner le nombre d'elements
+	-- plus petit que le pivot
         for k in debut+1..fin-1 loop
             if Poids(k) < pivot then
                 i_pivot := i_pivot + 1;
-                --Echanger(Poids(k), Poids(i_pivot));
-                --Echanger(PageRank(k), PageRank(i_pivot));
+	-- on "empile" les elements plus petit que le pivot en partant de l'indice de depart du pivot
+                Echanger(Poids(k), Poids(i_pivot));
+                Echanger(PageRank(k), PageRank(i_pivot));
             end if;
         end loop;
-        --Echanger(Poids(debut), Poids(i_pivot));
-        --Echanger(PageRank(debut), PageRank(i_pivot));
+        Echanger(Poids(debut), Poids(i_pivot));
+        Echanger(PageRank(debut), PageRank(i_pivot));
         return i_pivot;
     end Partition;
 
