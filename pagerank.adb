@@ -9,7 +9,7 @@ with Algebre;
 procedure pagerank is
 
 	Reseau : Ada.Text_IO.File_Type;
-	Nom_Reseau : Unbounded_String := To_Unbounded_String("exemple_sujet.net");
+	Nom_Reseau : Unbounded_String := To_Unbounded_String(Argument(Argument_Count));
 	alpha : float := 0.85;
 	Iteration : Integer := 150;
 	K : Integer := 1;
@@ -95,7 +95,7 @@ procedure pagerank is
 	end Calcul_PageRank;
 
 begin
-
+	-- Lecture des arguments de la ligne de commandes
 	while K < Argument_Count loop
 		Arg := To_Unbounded_String(Argument(K));
 
@@ -117,7 +117,6 @@ begin
 		end if;
 	end loop;
 
-	Nom_Reseau := To_Unbounded_String(Argument(Argument_Count));
 	Put(Iteration,1);
 	Put(" Iterations");
 	New_Line;
