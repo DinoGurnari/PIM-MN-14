@@ -30,7 +30,7 @@ procedure pagerank is
 
 	N : Integer := Determiner_Taille(To_String(Nom_Reseau));
 	-- On utlise des matrices de taille N*N
-	package AlgebreN is new Algebre(N);
+	package AlgebreN is new Algebre(N => N, T_Element => Float);
 	use AlgebreN;
 
 	-- Calcul de la matrice de Google Naive
@@ -84,6 +84,65 @@ procedure pagerank is
 	G : T_Matrice;
 	Poids : T_Vecteur;
 	PRank : T_Vecteur;
+
+	-- Calcul de la matrice de Google Creuse
+	function Poids_Matrice_Google_Creuse(Nom_Reseau : String; Pi : in out T_Vecteur) return T_Vecteur is
+		G : T_Matrice_Creuse;
+
+		-- On forme la matrice S
+		procedure Creer_S(M : in out T_Matrice_Creuse; Nom_Reseau : String) is
+			Reseau : Ada.Text_IO.File_Type;
+			Site1 : Integer;
+			Site2 : Integer;
+		begin
+			-- Créer H à partir du reseau donnée
+			open(Reseau, In_File, Nom_Reseau);
+			Skip_Line(Reseau);
+			-- Créer H contenant des ‘1’ pour représenter les hyperliens
+			while not End_Of_File(Reseau) loop
+				-- Traiter l’information de la ligne i
+				Get(Reseau, Site1);
+				Get(Reseau, Site2);
+				Enregistrer(M(Site1 + 1), Site2 + 1, 1.0);
+			end loop;
+			close(Reseau);
+
+			-- Créer S à l’aide de H
+			for i in 1..N loop
+				-- Vérifier qu’une ligne de H est vide
+				if not Est_Vide(M(i)) then
+					-- Normaliser les lignes de H
+					Normaliser_Ligne_Lca(M, i);
+				end if;
+			end loop;
+
+		end Creer_S;
+
+		procedure Calcul_G_creuse(M : in out T_Matrice_Creuse) is
+			Ligne : T_LCA;
+			val : Float := (1.0 - alpha)/Float(N);
+		begin
+			for i in 1..N loop
+				Ligne := M(i);
+				while Ligne /= Null loop
+					Ligne.all.Donnee := Ligne.all.Donnee + val;
+					Ligne := Ligne.all.Suivant;
+				end loop;
+			end loop;
+		end Calcul_G_creuse;
+	begin
+		Initialiser_Matrice_Creuse(G);
+		Creer_S(G, Nom_Reseau);
+
+		Initialiser_Vecteur(Pi, 1.0/float(N));
+		for k in 1..Iteration loop
+			-- Calculer Pi(k+1) en fonction de G
+			Pi := Produit_Vecteur_Matrice_Creuse(Pi, G, alpha);
+		end loop;
+		Vider_Matrice(G);
+		return(Pi);
+	end Poids_Matrice_Google_Creuse;
+
 
 	-- Calcul du Poids pour un certain nombre d'itération
 	procedure Calcul_Poids(Pi : in out T_Vecteur; Iteration : in Integer) is
@@ -185,8 +244,10 @@ begin
 		Creation_Fichiers(PRank, Poids);
 
 	elsif Mode = 'C' then
-		Put_Line("Matrices creuses non implementees");
-
+		Put_Line("Calcul Creux");
+		Poids := Poids_Matrice_Google_Creuse(To_String(Nom_Reseau), Poids);
+		PRank := Creation_Vecteur_Pagerank;
+		Creation_Fichiers(PRank, Poids);
 	else
 		Put_Line("Erreur dans le choix du mode");
 	end if;
