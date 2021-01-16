@@ -15,6 +15,7 @@ procedure pagerank is
 	K : Integer := 1;
 	Mode : Character := 'C';
 	Arg : Unbounded_String;
+	debut : Integer := 1;
 
 
 	-- On récupère le nombre N de pages du reseau
@@ -29,6 +30,8 @@ procedure pagerank is
 	end Determiner_Taille;
 
 	N : Integer := Determiner_Taille(To_String(Nom_Reseau));
+	-- fin utilisé pour l'algo du tri rapide
+	fin : Integer := N+1; 
 	-- On utlise des matrices de taille N*N
 	package AlgebreN is new Algebre(N => N, T_Element => Float);
 	use AlgebreN;
@@ -241,6 +244,7 @@ begin
 		G := Matrice_Google_Naive(To_String(Nom_Reseau));
 		Calcul_Poids(Poids, Iteration);
 		PRank := Creation_Vecteur_Pagerank;
+		Trier(Poids, PRank, debut, fin);
 		Creation_Fichiers(PRank, Poids);
 
 	elsif Mode = 'C' then
