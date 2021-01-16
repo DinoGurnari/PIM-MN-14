@@ -83,16 +83,58 @@ procedure pagerank is
 
 	G : T_Matrice;
 	Poids : T_Vecteur;
+	PRank : T_Vecteur;
 
-	-- Calcul du PageRank pour un certain nombre d'itération
-	procedure Calcul_PageRank(Pi : in out T_Vecteur; Iteration : in Integer) is
+	-- Calcul du Poids pour un certain nombre d'itération
+	procedure Calcul_Poids(Pi : in out T_Vecteur; Iteration : in Integer) is
 	begin
 		Initialiser_Vecteur(Pi, 1.0/float(N));
 		for k in 1..Iteration loop
 			-- Calculer Pi(k+1) en fonction de G
 			Pi := Produit_Vecteur_Matrice(Pi, G);
 		end loop;
-	end Calcul_PageRank;
+	end Calcul_Poids;
+
+	function Creation_Vecteur_Pagerank return T_Vecteur is
+		PageRank : T_Vecteur;
+	begin
+		for i in 1..N loop
+			PageRank(i) := float(i - 1);
+		end loop;
+
+		return PageRank;
+	end;
+
+	-- Creation des fichiers
+	procedure Creation_Fichiers(PageRank : in T_Vecteur; Poids : in T_Vecteur) is
+		F_PageRank : Ada.Text_IO.File_Type;
+		F_Poids : Ada.Text_IO.File_Type;
+		nom : Unbounded_String := To_Unbounded_String(Slice(Nom_Reseau, 1, Length(Nom_Reseau) - 3));
+		nom_pagerank : Unbounded_String := nom & "ord";
+		nom_poids : Unbounded_String := nom & "p";
+	begin
+		Create(F_PageRank, Out_File, To_String(nom_pagerank));
+		Create(F_Poids, Out_File, To_String(nom_poids));
+
+		-- Ajout de la ligne contenant N alpha I
+		Put(F_Poids , N, 1);
+		Put(F_Poids , " ");
+		Put(F_Poids , alpha, Fore => 1, Aft => 10);
+		Put(F_Poids , " ");
+		Put(F_Poids , Iteration, 1);
+		New_Line(F_Poids);
+
+		for l in 1..N loop
+			-- On ajoute les lignes;
+			Put(F_PageRank, Integer(PageRank(l)), 1);
+			New_Line(F_PageRank);
+			Put(F_Poids, Poids(l), Fore => 1, Aft => 10);
+			New_Line(F_Poids);
+		end loop;
+
+		Close(F_Poids);
+		Close(F_PageRank);
+	end;
 
 begin
 	-- Lecture des arguments de la ligne de commandes
@@ -114,6 +156,17 @@ begin
 			alpha := Float'Value(Argument(K+1));
 			K := K + 2;
 
+		else
+			Put_Line("Les options possibles sont :");
+			New_Line;
+			Put_Line("-P pour le mode Naif");
+			New_Line;
+			Put_Line("-I suivie d'un Entier Naturel pour choisir le nombre d'itération");
+			New_Line;
+			Put_Line("-A suivie d'un Réel compris entre 0 et 1 pour choisir alpha");
+			New_Line;
+			Put_Line("Le nom du fichier à traiter doit être mis en dernier !");
+
 		end if;
 	end loop;
 
@@ -127,7 +180,9 @@ begin
 	if Mode = 'N' then
 		Put_Line("Calcul Naif");
 		G := Matrice_Google_Naive(To_String(Nom_Reseau));
-		Calcul_PageRank(Poids, Iteration);
+		Calcul_Poids(Poids, Iteration);
+		PRank := Creation_Vecteur_Pagerank;
+		Creation_Fichiers(PRank, Poids);
 
 	elsif Mode = 'C' then
 		Put_Line("Matrices creuses non implementees");
