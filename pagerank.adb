@@ -228,6 +228,8 @@ begin
 			Put_Line("-A suivie d'un Réel compris entre 0 et 1 pour choisir alpha");
 			New_Line;
 			Put_Line("Le nom du fichier à traiter doit être mis en dernier !");
+			Mode := 'O';
+			K := Argument_Count;
 
 		end if;
 	end loop;
