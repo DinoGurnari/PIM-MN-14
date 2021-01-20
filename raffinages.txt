@@ -1,0 +1,184 @@
+Google_Naive
+R0 - Créer un fichier Pagerank, qui classe les pages d’un réseau donné, et un fichier Poids qui recense le poids de ces pages.        
+
+
+R1 - Comment “Créer un fichier Pagerank, qui classe les pages d’un réseau donné, et un fichier Poids qui recense le poids de ces pages.” ?
+        Calculer le poids de chaque nœud du réseau.                		Nb_Itération : in Entier
+                                                                        Alpha : in Réel
+                                                                        Réseau : in
+                                                                        Poids : out Vecteur
+-- KJR : Il manque une étape qui lit les arguments de la ligne de commande. 
+        Trier les poids de chaque noeud du réseau
+	Enregistrer les poids dans l’ordre décroissant dans un fichier Poids
+	Enregistrer les pages par ordre décroissant de leur poids dans le fichier Pagerank 
+                                                                        Réseau : in 
+                                                                        Poids : in Vecteur
+                                                                        PageRank : out
+
+
+R2 - Comment “Calculer le poids de chaque nœud du réseau” ?
+        POUR k allant de 0 à Nb_Itération FAIRE                        	Nb_Itération : in Entier
+                Calculer Pi(k+1) en fonction de G à l’aide de la relation de récurrence Pi(k+1) = Pi(k)*G                                                 
+																		Réseau : in
+-- KJR : Avant de calculer les poids, il faut avoir déterminé G. Le calcul de G se fait en lisant le réseau dans le fichier. 
+-- Vous n'allez pas construire G a chaque passant dans la boucle Pour, c'est bien trop de traitement ...
+                                                                        Alpha : in Réel
+                                                                        G : in T_Matrice
+        FIN POUR                                                        Pi(k) : out Vecteur
+
+
+R2 - Comment “Trier les poids de chaque noeud du réseau” ?
+        Créer la matrice Nx2 Rank                                       Rank : out T_Matrice
+        Trier les poids avec l’algorithme du tri rapide                	Rank : in out T_Matrice
+
+
+R2 - Comment “Enregistrer les poids dans l’ordre décroissant dans un fichier Poids” ? 
+	Créer le fichier Poids                                              Poids : out Fichier
+	Créer la matrice Nx2 Pagerank                                 		Rank : out T_Matrice
+-- KJR vous avez déjà créé la matrice Nx2 Rank ? D'ailleurs que contient-elle ? 
+	POUR Ligne_i allant de 1 à N FAIRE                                	Ligne_i : in Entier
+                    Poids_Page = Rank[Ligne_i,Colonne_Poids]            Rank : in T_Matrice
+                                                                        Colonne_Poids : in Entier
+                                                                        Poids_Page : out Entier
+                    Ajouter(Poids, "Poids_Page")
+-- KJR : je ne comprends pas ce que vous faites ici ? Et normalement y'a pas de sous-programmes dans un raffinage. 
+-- Dans quoi ajoutez-vous ? Est-ce pour écrire dans le fichier ? Si oui, on indique 'Ecrire Poids (i) dans le fichier Poids.                                  
+	FIN POUR
+
+
+
+
+R2 - Comment “Enregistrer les pages par ordre décroissant de leur poids dans le fichier Pagerank “ ? 
+	Créer le fichier PageRank                                        	PageRank : out Fichier
+	POUR Ligne_i allant de 1 à N FAIRE                                	Ligne_i : in Entier
+						  Numero_Page = Rank[Ligne_i,Colonne_Page]      Rank : in T_Matrice
+																		Numero_Page : out Entier
+																		Colonne_Page : in Entier
+						  Ajouter(Pagerank, "Numero_Page") 
+	FIN POUR
+
+
+R3 - Comment “Calculer Pi(k+1) en fonction de G” ?
+        Déterminer le nombre de pages N                                Réseau : in Fichier
+                                                                        N : out Entier
+
+
+        Initialiser Pi(0)                                               N : in Entier        
+                                                                        Pi(0) : out Vecteur
+
+
+        Calculer G à l'aide de la relation G = alpha*S + ((1-alpha)/N)*eet
+-- KJR Cette étape est mal placée car vous la faite à chaque itération du produit matriciel. 
+                                                                        N : in Entier        
+                                                                        Alpha : in Réel
+                                                                        Réseau : in
+                                                                        S : in T_Matrice
+                                                                        G : out T_Matrice
+                                                                        e : in Vecteur
+-- KJR Attention, pour cette étape de calcul, il faut UNE SEULE matrice - les autres rajoutent des données en mémoire redondantes. 
+
+R4 - Comment “Initialiser Pi(0)” ?
+        Créer un vecteur de taille N contenant pour chaque coordonnées 1/N                                                                                        
+																		N : in Entier
+                                                                        Pi(0) : out Vecteur
+
+
+R4 - Comment “Calculer G en fonction de S” ? 
+        Créer S à l’aide de H                                           H : in T_Matrice
+                                                                        N : in Entier
+                                                                        S : out T_Matrice
+
+
+        Utiliser la relation  G = alpha*S + ((1-alpha)/N)*eet        	S : in T_Matrice                                                                                
+																		G : out T_Matrice
+R5 - Comment “Créer S à l’aide de H” ?
+        Créer H à partir du réseau donné                                Réseau : in Fichier
+                                                                        H : out T_Matrice
+        Initialiser S avec H                                            H : in T_Matrice
+                                                                        S : out T_Matrice
+        Remplacer les lignes vides de S par des lignes de 1/N
+
+
+
+
+R6 - Comment “Créer H à partir du réseau donné” ?
+        Créer H contenant des ‘1’ pour représenter les hyperliens. 		Réseau : in Fichier
+                                                                        H : out T_Matrice
+        Normaliser les lignes de H.                                     H : in out T_Matrice
+
+
+
+
+
+
+R6 - Comment “Remplacer les lignes vides de S par des lignes de 1/N” ?
+	POUR i allant de 0 à N - 1 FAIRE                                	N : in Entier        
+																		H : in T_Matrice
+		SI La ligne i de H est vide ALORS
+			Remplacer la ligne par une ligne de 1/N 
+        FIN SI
+    FIN POUR                                                        	S : out T_Matrice
+
+
+
+
+R7 - Comment “Créer H contenant des ‘1’ pour représenter les hyperliens” ?
+        Ouvrir le fichier réseau                                        Réseau : in Fichier
+        Lire la première ligne du fichier pour obtenir N                N : out Entier        
+        Créer une matrice H vide de taille N*N                        	H : out T_Matrice
+        Parcourir les lignes pour former H                              H : in out T_Matrice
+        Fermer le fichier                                                
+
+
+
+
+R7 - Comment “Normaliser les lignes de H” ?
+        POUR i allant de 0 à N FAIRE                                	H : in T_Matrice
+                Faire la somme de la ligne i.                           Somme : out Entier
+-- KJR : vous pouvez faire cette étape au moment où vous lisez le fichier, en sauvegardant le nb de liens sortants dans un tableau de taille N.
+                Normaliser la ligne i.                                  Somme : in Entier
+        FIN POUR                                                        H : out T_Matrice
+
+
+R7 - Comment “Vérifier qu’une ligne de H est vide ?” 
+       
+        SI Somme_Ligne = 0  ALORS                                		Somme_Ligne : in Entier
+                Ligne_Vide = Vrai                                       Signe_Vide : out Booleen
+        SINON
+                Ligne_Vide = Faux
+        FIN SI
+
+
+R7 - Comment “Remplacer la ligne par une ligne de 1/N” ?
+	POUR Colonne_m allant de 0 à N-1 FAIRE                        		Colonne_m : in Entier
+		H[Ligne_i,Colonne_m] = 1/N                                		Ligne_i : in Entier
+																		H : out T_Matrice
+	FIN POUR
+
+
+R8 - Comment “Parcourir les lignes pour former H” ?
+        i = 1                                                         	Ligne_i : out Entier
+        TANT QUE la ligne i est non-vide FAIRE                        
+                Traiter l’information de la ligne i                    	H : in out T_Matrice
+                i = i + 1                                             	Ligne_i : in out Entier
+        FIN POUR
+
+
+R8 - Comment “Faire la somme de la ligne i” ?
+        Somme = 0                                                       Somme : out Entier
+        POUR j allant de 1 à N FAIRE                                	H : in Matrice
+                Somme = Somme + H(i,j)
+        FIN POUR                                                        
+
+
+R8 - Comment “Normaliser la ligne i” ?
+        POUR j allant de 1 à N FAIRE                                 	H : in Matrice
+                H(i,j) = H(i,j)/Somme                                   Somme : in Entier
+                                                                        H : out Matrice 
+        FIN POUR
+
+
+R9 - Comment “Traiter l’information de la ligne i” ?
+        A = Premier Entier de la ligne                                 	A : out Entier
+        B = Second Entier de la ligne                                 	B : out Entier
+        H(A,B) = 1                                                   	H : in out Matrice
