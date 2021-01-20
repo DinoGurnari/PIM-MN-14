@@ -253,6 +253,7 @@ begin
 		Put_Line("Calcul Creux");
 		Poids := Poids_Matrice_Google_Creuse(To_String(Nom_Reseau), Poids);
 		PRank := Creation_Vecteur_Pagerank;
+		Trier(Poids, PRank, debut, fin);
 		Creation_Fichiers(PRank, Poids);
 	else
 		Put_Line("Erreur dans le choix du mode");
